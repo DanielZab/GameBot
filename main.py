@@ -9,27 +9,43 @@ import cv2
 from copy import deepcopy
 from moviepy.editor import VideoFileClip
 
+# pylint: disable=no-member
+
 class Img:
     '''
     Image Class containing the image
     '''
+    generator = 0
     def __init__(self, img, x_size=0, y_size=0, pos_x=0, pos_y=0):
+        '''
+        Initialize instance
+        '''
+        if not Img.generator:
+            Img.generator = Img.generate()
+        self.id = next(Img.generator)
         if isinstance(img, Image.Image):
-            self.img = img
-        elif isinstance(img, Img):
+            self.image = img
+        if isinstance(img, Img):
             self.image = img.image
-            self.x_size = img.x_size
-            self.y_size = img.y_size
             self.pos_x = img.pos_x
             self.pos_y = img.pos_y
         else:
             self.image = Image.open(img)
-            self.x_size = x_size
-            self.y_size = y_size
             self.pos_x = pos_x
             self.pos_y = pos_y
             if x_size and y_size:
                 self.image = self.image.resize((x_size, y_size))
+
+    @staticmethod
+    def generate():
+        '''
+        Generate unique id
+        '''
+        i = 0
+        while True:
+            yield i
+            i += 1
+
 
     def __add__(self, other):
         '''
@@ -37,8 +53,22 @@ class Img:
         '''
         s = deepcopy(self)
         o = deepcopy(other)
-        s.image.paste(o.image, (o.pos_x, o.pos_y), o.image)
+        s.image.paste(o.image, (round(o.pos_x), round(o.pos_y)), o.image)
         return s
+
+    def __hash__(self):
+        '''
+        Defined to enable the use as a key in a dictionary
+        '''
+        return hash(self.id)
+
+    def __eq__(self, other):
+        '''
+        Defined to enable the use as a key in a dictionary
+        '''
+        if isinstance(other, self.__class__):
+            return self.id == other.id
+        return NotImplemented
 
     def convert(self):
         '''
@@ -56,6 +86,78 @@ class Img:
         '''
         self.pos_x = x
         self.pos_y = y
+
+
+def make_video(MAP, dic):
+    '''
+    Creates video
+    '''
+    #Get length of longest list
+    moves = max(len(e) for e in dic.values())
+    images = []
+    for m in range(moves - 1):
+        move_list = dict()
+        for img, pos_list in dic.items():
+            try:
+                temp_move = (pos_list[m], pos_list[m + 1])
+                move_list[img] = temp_move
+            except IndexError:
+                pass
+        images.extend(make_move(move_list, MAP))
+
+    #Make video
+    out = cv2.VideoWriter('project.avi', cv2.VideoWriter_fourcc(*'DIVX'), 25, (MAP.image.width/2, MAP.image.height))
+ 
+    for i in range(len(images)):
+        x = images[i]
+        x = x.convert()
+        out.write(x.image)
+    out.release()
+
+def make_move(li, MAP):
+    '''
+    Create images of a single move
+    '''
+    splitted_moves = dict()
+    for img, pos_list in li.items():
+        splitted_moves[img] = split(pos_list)
+    frames = []
+    for i in range(max(len(e) for e in splitted_moves.values())):
+        frame = MAP
+        for img, pos_list in splitted_moves.items():
+            img.move(*pos_list[i])
+            frame = frame + img
+        frames.append(frame)
+    return frames
+
+        
+        
+def split(li):
+    '''
+    Splits the vector in smaller splits
+    '''
+    split = 20 #Divide vecotr in how many sections
+    extra = 5 #Add how many extra frames at the end
+
+    #Determine step per frame
+    step_x = (li[1][0] - li[0][0]) / split
+    step_y = (li[1][1] - li[0][1]) / split
+
+    #Define starting coordinates
+    start_x = li[0][0]
+    start_y = li[0][1]
+
+    splits = []
+
+    #Add smaller splits to list
+    for i in range(1, split + 1):
+        splits.append((i * step_x + start_x, i * step_y + start_y))
+
+    #Add extra coordinates, which will serve as pausing frames
+    for i in range(extra):
+        splits.append(li[1])
+    return splits
+
 
 
 
@@ -78,18 +180,13 @@ if __name__ == '__main__':
     #Load images
     MAP = Img('Assets\\Map.jpg')
     red = Img('Assets\\Red.png', 80, 80)
-    maps = []
-    for x in range(10):
-        red.move(x*10, x*10)
-        temp = MAP + red
-        maps.append(temp.convert())
     
-    #Make video
-    out = cv2.VideoWriter('project.avi',cv2.VideoWriter_fourcc(*'DIVX'), 5, (4400, 2600))
- 
-    for i in range(len(maps)):
-        out.write(maps[i].image)
-    out.release()
-    clip = (VideoFileClip("project.avi"))
-    clip.write_gif("output.gif")
+    moves = {
+        red: [(200, 500),(1100, 1800),(3000, 90),(200, 10)]
+    }
+
+    make_video(MAP, moves)
+
+    #clip = (VideoFileClip("project.avi"))
+    #clip.write_gif("output.gif")
 #TODO Setup Bot
