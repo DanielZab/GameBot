@@ -1,6 +1,8 @@
 #Imports
 import logging
 import discord
+from discord.ext import commands
+from discord_slash import SlashCommand, SlashContext
 import os
 from dotenv import load_dotenv
 from PIL import Image
@@ -10,6 +12,19 @@ from copy import deepcopy
 from moviepy.editor import VideoFileClip
 
 # pylint: disable=no-member
+
+#Load Bot
+bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
+slash = SlashCommand(bot) # sync_commands=True
+
+@slash.slash(name="blep")
+async def _blep(ctx: SlashContext, animal, only_smol=False):
+    embed = discord.Embed(title="embed test")
+    await ctx.send(content="test", embeds=[embed])
+
+@bot.command()
+async def tes(ctx):
+    await ctx.send(ctx.guild.id)
 
 class Img:
     '''
@@ -94,10 +109,10 @@ def make_video(MAP, dic):
     '''
     
     #Convert stations to coordinates
-    logging.info('Converting stations')
+    logger.info('Converting stations')
     for img, stations in dic.items():
         dic[img] = assign_coordinates(stations, img)
-    logging.info('Finished converting stations')
+    logger.info('Finished converting stations')
 
     #Get length of longest list
     moves = max(len(e) for e in dic.values())
@@ -121,22 +136,22 @@ def make_video(MAP, dic):
                 move_list[img] = temp_move
             except IndexError:
                 pass
-        logging.info(f'Visualizing move {m}')
+        logger.info(f'Visualizing move {m}')
         images.extend(make_move(move_list, MAP))
-        logging.info(f'Finished visualizing move {m}')
+        logger.info(f'Finished visualizing move {m}')
 
     #Creating videowriter
-    logging.info('Creating Videowriter')
+    logger.info('Creating Videowriter')
     out = cv2.VideoWriter('project.avi', cv2.VideoWriter_fourcc(*'DIVX'), 25, (MAP.image.width, MAP.image.height))
-    logging.info('Created Videowriter')
+    logger.info('Created Videowriter')
  
     #Writing video
-    logging.info('Writing video')
+    logger.info('Writing video')
     for i in range(len(images)):
         x = images[i]
         x = x.convert()
         out.write(x.image)
-    logging.info('Finished writing video')
+    logger.info('Finished writing video')
     out.release()
 
 def make_move(li, MAP):
@@ -368,7 +383,7 @@ def assign_coordinates(li, img):
             x = destinations[li[i]]
             li[i] = (round(x[0] - img.image.width / 2),round(x[1] - img.image.height / 2))
         except:
-            logging.critical("Destination couldn't be assigned")
+            logger.critical("Destination couldn't be assigned")
     return li
 
         
@@ -413,39 +428,40 @@ def check():
 
 
 if __name__ == '__main__':
-    #Logging setup
-    FORMAT = '[%(levelname)s] - %(asctime)s: %(message)s'
-    logging.basicConfig(level=logging.INFO,
-                        format=FORMAT,
-                        filename='debug.log',
-                        datefmt='%H:%M:%S')
+    #logger setup
+    logger = logging.getLogger('discord')
+    logger.setLevel(logging.INFO)
+    handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+    handler.setFormatter(logging.Formatter('[%(levelname)s] - %(asctime)s:%(name)s: %(message)s'))
+    logger.addHandler(handler)
 
-    logging.info('-----------New Boot-----------')
+    logger.info('-----------New Boot-----------')
 
     #Load environment variables
     load_dotenv()
-    logging.info('Loading environment variables')
+    logger.info('Loading environment variables')
     AUTH_TOKEN = os.getenv('TOKEN')
-    logging.info('Finished loading environment variables')
+    logger.info('Finished loading environment variables')
 
     #Load images
-    logging.info('Loading assets')
+    logger.info('Loading assets')
     MAP = Img('Assets\\Map.jpg')
     red = Img('Assets\\Red.png', 80, 80)
     white = Img('Assets\\White.png', 80, 80)
-    logging.info('Finished loading assets')
+    logger.info('Finished loading assets')
     
     moves = {
         white: [1, 89, 56, 43],
         red: [2, 33 ,45, 64]
     }
 
-    logging.info('Making video')
-    make_video(MAP, moves)
-    logging.info('Finished making video')
+    logger.info('Making video')
+    #make_video(MAP, moves)
+    logger.info('Finished making video')
 
     #check()
     
+    bot.run(AUTH_TOKEN)
 
     #clip = (VideoFileClip("project.avi"))
     #clip.write_gif("output.gif")
