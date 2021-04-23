@@ -32,7 +32,7 @@ class Scotland_Yard:
         self.blue = False
         self.yellow = False
         self.orange = False
-        self.purple = False
+        self.green = False
         self.black = False
         self.players = []
         self.mr_x_candidates = []
@@ -44,10 +44,11 @@ class Scotland_Yard:
             "red": [],
             "blue": [],
             "yellow": [],
-            "purple": [],
+            "green": [],
             "orange": [],
             "black": []
         }
+        self.wait_for_black = False
     
     def assign(self, color, who):
         if color == "red": 
@@ -56,22 +57,22 @@ class Scotland_Yard:
             self.blue = who
         elif color == "yellow":
             self.yellow = who
-        elif color == "purple":
-            self.purple = who
+        elif color == "green":
+            self.green = who
         elif color == "orange": 
             self.orange = who
 
     def make_bots(self):
         if self.red == False:
-            self.red = "bot"
+            self.red = "red bot"
         if self.blue == False:
-            self.blue= "bot"
+            self.blue= "blue bot"
         if self.yellow == False:
-            self.yellow = "bot"
+            self.yellow = "yellow bot"
         if self.orange == False:
-            self.orange = "bot"
-        if self.purple == False:
-            self.purple = "bot"
+            self.orange = "orange bot"
+        if self.green == False:
+            self.green = "green bot"
     
     def get_player(self, color):
         if color == "red": 
@@ -80,8 +81,8 @@ class Scotland_Yard:
             return self.blue
         elif color == "yellow":
             return self.yellow
-        elif color == "purple":
-            return self.purple
+        elif color == "green":
+            return self.green
         elif color == "orange": 
             return self.orange
     def __iter__(self):
@@ -93,7 +94,7 @@ class Scotland_Yard:
                 0: self.red,
                 1: self.blue,
                 2: self.yellow,
-                3: self.purple,
+                3: self.green,
                 4: self.orange
             }
             self.start += 1
@@ -108,21 +109,26 @@ class Scotland_Yard:
 #TODO DISPLAY colors
 @slash.slash(name="blep")
 async def _blep(ctx: SlashContext, animal, only_smol: bool=False):
-    embed = discord.Embed(title="embed test")
-    await ctx.send(f"test {type(only_smol)}")
+    await ctx.author.send(f"test {type(only_smol)}")
+    await ctx.send("Test")
 
 @slash.slash(name="start")
 async def _start(ctx: SlashContext, game: str, play_along: bool=False, *args):
     global sc_yr
     logger.info("Starting game!")
     if sc_yr != False:
+        logger.warning('Game already running')
         await ctx.send(f"{ctx.author.mention} A game has already started! Use /join to join the current game")
         return
     if game == "Scotland Yard":
+        logger.info("Starting scotland yard")
         sc_yr = Scotland_Yard(ctx.channel)
         await ctx.send(f"A {game}-Game has been created!")
         if play_along:
+            logger.info(f"Adding {ctx.author} to the game")
             sc_yr.players.append(ctx.author)
+            sc_yr.mr_x_candidates.append(ctx.author)
+            logger.info(f"Added {ctx.author} to the game")
         await send_player_list(ctx, sc_yr.players)
     else:
         logging.critical("Game not found!")
@@ -130,41 +136,55 @@ async def _start(ctx: SlashContext, game: str, play_along: bool=False, *args):
         
 
 @slash.slash(name="join")
-async def _join(ctx: SlashContext, who=False, mr_x=True, *args):
+async def _join(ctx: SlashContext, eligible=True, who=False, *args):
     global sc_yr
     if not await check_game(ctx, sc_yr):
         return
     if len(sc_yr.players) < sc_yr.playercount:
         if who:
             if who not in sc_yr.players:
+                logger.info(f"Adding {who} to the player list")
                 sc_yr.players.append(who)
-                if mr_x:
+                if eligible:
+                    logger.info(f"Adding {who} to the Mr X. list")
                     sc_yr.mr_x_candidates.append(who)
                 await ctx.send(f"{who.mention} has been added to the player list")
             else:
+                logger.warning(f"{who} is already in game")
                 await ctx.send(f"{ctx.author.mention} This player is already a participant!")
         else:
             if ctx.author not in sc_yr.players:
                 sc_yr.players.append(ctx.author)
-                if mr_x:
+                logger.info(f"Added {ctx.author} to the player list")
+                if eligible:
                     sc_yr.mr_x_candidates.append(ctx.author)
+                    logger.info(f"Adding {ctx.author} to the Mr X. list")
                 await ctx.send(f"{ctx.author.mention} You've been added to the player list")
             else:
+                logger.warning(f"{ctx.author} is already in game")
                 await ctx.send(f"{ctx.author.mention} You're already a participant!")
         await send_player_list(ctx, sc_yr.players)
         if len(sc_yr.players) == sc_yr.playercount:
+            logger.info("auto confirm")
             if await conf_embed(sc_yr.channel, sc_yr):
+                logger.info("Starting game from auto confirm")
                 await start_game()
     else:
+        logger.warning("List is Already Full")
         await sc_yr.channel.send(f"{ctx.author.mention} The list is already full!")
 
 @slash.slash(name="confirm")
 async def _confirm(ctx: SlashContext):
     global sc_yr
+    logger.info("Starting confirm")
     if not await check_game(ctx, sc_yr):
+        logger.warning("Confirm failed")
         return
     if await conf_embed(ctx, sc_yr):
+        logger.info("Confirm accepted")
         await start_game()
+    else:
+        logger.info("Confirm denied")
 
 @slash.slash(name="pick")
 async def _pick(ctx: SlashContext, color, who=False, *args):
@@ -179,31 +199,102 @@ async def _pick(ctx: SlashContext, color, who=False, *args):
     elif sc_yr.get_player(color):
         await ctx.send(f"{color.capitalize()} has been assigned already!")
     else:
+        logger.info(f"Assigning {color} to {who}")
         sc_yr.assign(color, who)
         await ctx.send(f"{who.mention} has been assigned the color {color}")
-        if len(filter(lambda x: x == False, list(iter(sc_yr)))) <= sc_yr.playercount - len(sc_yr.players):
+        if len(list(filter(lambda x: x == False, list(iter(sc_yr))))) <= sc_yr.playercount - len(sc_yr.players):
             sc_yr.make_bots()
+            logger.info("Made Bots")
             await sc_yr.channel.send("The remaining colors were assigned to the bots!")
             await assign_pos()
+        else:
+            logger.info("Waiting for other people to pick a color")
 
 
 @slash.slash(name="colors")
 async def _colors(ctx: SlashContext):
     global sc_yr
+    logger.info("Attemting to print colors")
     embed = discord.Embed(title="Colors", color=discord.Color.from_rgb(128, 128, 128))
-    value = str(sc_yr.red) if sc_yr else "Not assigned"
-    embed.add_field(name=":red_circle:", value=value, inline=False)
-    value = str(sc_yr.blue) if sc_yr else "Not assigned"
-    embed.add_field(name=":blue_circle:", value=value, inline=False)
-    value = str(sc_yr.yellow) if sc_yr else "Not assigned"
-    embed.add_field(name=":yellow_circle:", value=value, inline=False)
-    value = str(sc_yr.purple) if sc_yr else "Not assigned"
-    embed.add_field(name=":purple_circle:", value=value, inline=False)
-    value = str(sc_yr.orange) if sc_yr else "Not assigned"
-    embed.add_field(name=":orange_circle:", value=value, inline=False)
-    value = str(sc_yr.black) if sc_yr else "Not assigned"
-    embed.add_field(name=":black_circle:", value=value, inline=False)
-    ctx.send(embed=embed)
+    value = str(sc_yr.red) if sc_yr.red else "Not assigned"
+    embed.add_field(name=":red_circle:", value=value, inline=True)
+    value = str(sc_yr.blue) if sc_yr.blue else "Not assigned"
+    embed.add_field(name=":blue_circle:", value=value, inline=True)
+    value = str(sc_yr.yellow) if sc_yr.yellow else "Not assigned"
+    embed.add_field(name=":yellow_circle:", value=value, inline=True)
+    value = str(sc_yr.green) if sc_yr.green else "Not assigned"
+    embed.add_field(name=":green_circle:", value=value, inline=True)
+    value = str(sc_yr.orange) if sc_yr.orange else "Not assigned"
+    embed.add_field(name=":orange_circle:", value=value, inline=True)
+    value = str(sc_yr.black) if sc_yr.black else "Not assigned"
+    embed.add_field(name=":black_circle:", value=value, inline=True)
+    await ctx.send(embed=embed)
+
+@slash.slash(name="move")
+async def _move(ctx: SlashContext, pos: int, color: str=False, boost: int=False):
+    if not 0 < pos < 200:
+        await ctx.send(f"{ctx.author.mention} That position is invalid!")
+    global sc_yr
+    colors = ['red', 'blue', 'yellow', 'green', 'orange']
+    who = ctx.author
+    if color:
+        who = sc_yr.get_player(color)
+    logger.info(f"Moving {who}")
+    if sc_yr.wait_for_black and who == sc_yr.black:
+        logger.info(f"{who} is Mr. X")
+        # if sc_yr.channel == ctx.channel:
+
+        #     ctx.delete()
+
+        sc_yr.moves['black'].append(pos)
+        sc_yr.wait_for_black = False
+        logger.info(f"{who} was moved")
+        if boost:
+            logger.info(f"Boosting {who}")
+            for c in colors:
+                logger.info(f"Duplicating {c}'s position")
+                sc_yr.moves[c].append(sc_yr.moves[c][-1])
+            sc_yr.moves['black'].append(boost)
+            sc_yr.rnd += 1
+            logger.info(f"{who} was boosted")
+        await ctx.send("Mr. X has moved! It's your turn, detectives!")
+
+    elif not sc_yr.wait_for_black:
+        logger.info("Moving detective")
+        players = [sc_yr.red, sc_yr.blue, sc_yr.yellow, sc_yr.green, sc_yr.orange]
+        for i in range(5):
+            player = players[i]
+            logger.info(f"{i}, {player}")
+            if player == who:
+                logger.info(f"Found author: {sc_yr.rnd}, {len(sc_yr.moves[colors[i]])}")
+                if sc_yr.rnd >= len(sc_yr.moves[colors[i]]):
+                    sc_yr.moves[colors[i]].append(pos)
+                    msg = who if type(who) == type("") else who.mention
+                    await ctx.send(f"{msg} was moved to {pos}")
+                    logger.info(f"{who} was moved to {pos}")
+                    if all(len(e) > sc_yr.rnd for e in sc_yr.moves.values()):
+                        logger.info("All detectives moved")
+                        await sc_yr.channel.send("All detectives have moved!")
+                        await play_round()
+                else:
+                    await ctx.send(f"{who.mention} Has already made a move")
+                return
+        logger.info(f"{sc_yr.wait_for_black}, {who in sc_yr}")
+        await ctx.send("It's not your turn!")
+    else:
+        logger.info(f"{sc_yr.wait_for_black}, {who in sc_yr}")
+        await ctx.send("It's not your turn!")
+
+@slash.slash(name="end")
+async def _end(ctx: SlashContext):
+    global sc_yr
+    await ctx.send("Alright, ending game")
+    for c, m in sc_yr.moves.items():
+        while len(m) <= sc_yr.rnd:
+            sc_yr.moves[c].append(sc_yr.moves[c][-1])
+    logger.info("Ending game")
+    await end_game()
+
 
 @bot.command()
 async def tes(ctx):
@@ -252,7 +343,7 @@ async def conf_embed(ctx, sc_yr):
     elif msg.content.lower() in ["n", "no"]:
         await ctx.send("Fine, I'll wait. Use /confirm to start the game, whenever you are ready!")
     else:
-        ctx.send("I'll take that as a no. Use /confirm to start the game, whenever you are ready!")
+        await ctx.send("I'll take that as a no. Use /confirm to start the game, whenever you are ready!")
     return False
 
 async def start_game():
@@ -260,33 +351,63 @@ async def start_game():
     global sc_yr
     logger.info("Game started!")
     sc_yr.started = True
-    cand = deepcopy(sc_yr.mr_x_candidates) if len(sc_yr.mr_x_candidates) > 0 else deepcopy(sc_yr.players)
+    cand = sc_yr.mr_x_candidates.copy() if len(sc_yr.mr_x_candidates) > 0 else sc_yr.players.copy()
     sc_yr.black = random.choice(cand)
     cand.remove(sc_yr.black)
-    await sc_yr.channel.send(embed=discord.Embed(title=f"{sc_yr.black.mention} IS THE CHOSEN ONE!\nREMAINING PEASANTS, CHOOSE YOUR COLOR", description="Use /pick to choose a color", color=discord.Color.from_rgb(255, 0, 0)))
+    await sc_yr.channel.send(embed=discord.Embed(title=f"{sc_yr.black} IS THE CHOSEN ONE!\nREMAINING PEASANTS, CHOOSE YOUR COLOR", color=discord.Color.from_rgb(255, 0, 0)))
 
 async def assign_pos():
     global sc_yr
     pos = [197, 132, 94, 103, 26, 141, 112, 91, 155, 34, 29, 50, 53, 198, 174, 13, 138, 117]
+    end_msg = ""
     for i in sc_yr.moves.keys():
         start = random.choice(pos)
         pos.remove(start)
         sc_yr.moves[i].append(start)
-        msg = sc_yr.get_player(i)
-        msg = i if msg == "bot" else msg.mention
         if i == "black":
-            sc_yr.black.send(f"You're starting at station number {start}")
+            logger.info("Sending station to Mr. X")
+            await sc_yr.black.send(f"You're starting at station number {start}")
+            logger.info("Sent station to Mr. X")
         else:
-            await sc_yr.channel.send(f"{msg} is starting at station number {start}")
+            msg = sc_yr.get_player(i)
+            logger.info(f"player type: {type(msg)}")
+            msg = i if type(msg) == type("") else msg.mention
+            end_msg += f"{msg} is starting at station number {start}\n\n"
+    await sc_yr.channel.send(end_msg) 
     await play_round()
 
 async def play_round():
+    logger.info("Starting round")
     global sc_yr
+    logger.info("Testing whether Mr X. has been found")
+    colors = ['red', 'blue', 'yellow', 'green', 'orange']
+    if any(sc_yr.moves['black'][-1] == sc_yr.moves[c][-1] and not c == 'black' for c in colors):
+        await sc_yr.channel.send(embed=discord.Embed(title="Mr. X has been caught! Congratulations", color=discord.Color.from_rgb(0, 255, 0)))
+        logger.info("Testing whether Mr X. has been found")
+        await end_game()
+        return
     sc_yr.rnd += 1
-    def check(m):
-        m.author == sc_yr.black
-    msg = await bot.wait_for("message", check=check)
+    if sc_yr.rnd >= 25:
+        await sc_yr.channel.send(embed=discord.Embed(title="Mr. X has escaped! Missions failed, detectives", color=discord.Color.from_rgb(255, 0, 0)))
+        await end_game()
+        return
+    sc_yr.wait_for_black = True
+    await sc_yr.channel.send("Waiting for Mr. X's move...")
+    #sc_yr.black.send("Make your move here!")
     #TODO continue
+
+async def end_game():
+    dic = dict()
+    global player_images
+    global MAP
+    global sc_yr
+    for i, e in enumerate(sc_yr.moves.values()):
+        dic[player_images[i]] = e
+    make_video(MAP, dic)
+    await sc_yr.channel.send("The video has been created")
+    sc_yr = False
+    convert_avi_to_mp4("project.avi", "final")
+
 
 
 class Img:
@@ -681,14 +802,18 @@ def check():
     Prints a red player on every station, to check whether the coordinates are accurate
     '''
     global destinations
-    global red
+    global RED
+    global MAP
 
     frame = MAP
     for pos in destinations.values():
-        red.move(pos[0] - 40, pos[1] - 40)
-        frame = frame + red
+        RED.move(pos[0] - 40, pos[1] - 40)
+        frame = frame + RED
     frame.image.show()
 
+def convert_avi_to_mp4(avi_file_path, output_name):
+    os.popen("ffmpeg -i {input} -ac 2 -b:v 2000k -c:a aac -c:v libx264 -b:a 160k -vprofile high -bf 0 -strict experimental -f mp4 {output}.mp4".format(input = avi_file_path, output = output_name))
+    return True
 
 if __name__ == '__main__':
     #logger setup
@@ -709,21 +834,19 @@ if __name__ == '__main__':
     #Load images
     logger.info('Loading assets')
     MAP = Img('Assets\\Map.jpg')
-    red = Img('Assets\\Red.png', 80, 80)
-    white = Img('Assets\\White.png', 80, 80)
+    RED = Img('Assets\\Red.png', 80, 80)
+    BLUE = Img('Assets\\Blue.png', 80, 80)
+    YELLOW = Img('Assets\\Yellow.png', 80, 80)
+    GREEN = Img('Assets\\Green.png', 80, 80)
+    ORANGE = Img('Assets\\Orange.png', 80, 80)
+    BLACK = Img('Assets\\White.png', 80, 80)
     logger.info('Finished loading assets')
     
-    moves = {
-        white: [1, 89, 56, 43],
-        red: [2, 33 ,45, 64]
-    }
+    player_images=[RED, BLUE, YELLOW, GREEN, ORANGE, BLACK]
 
-    logger.info('Making video')
-    #make_video(MAP, moves)
-    logger.info('Finished making video')
 
     #check()
-    
+    convert_avi_to_mp4("project.avi", "final")
     bot.run(AUTH_TOKEN)
 
     #clip = (VideoFileClip("project.avi"))

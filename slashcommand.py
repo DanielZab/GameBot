@@ -2,7 +2,7 @@ import requests
 from dotenv import load_dotenv
 import os
 
-url = "https://discord.com/api/v8/applications/831611998641848330/commands"
+url = "https://discord.com/api/v8/applications/831611998641848330/guilds/456109062833176598/commands"
 
 load_dotenv()
 AUTH_TOKEN = os.getenv('TOKEN')
@@ -69,14 +69,15 @@ join = {
     "description": "Add player to current game's player list",
     "options": [
         {
+            "name": "eligible",
+            "description": "Whether or not eligible to become Mr. X. Default is True",
+            "type": 5,
+            "required": False
+        },
+        {
             "name": "who",
             "description": "Whom to add, self if not specified",
             "type": 6,
-            "required": False
-        }, {
-            "name": "Eligible",
-            "description": "Whether or not eligible to become Mr. X. Default is True",
-            "type": 5,
             "required": False
         }
     ]
@@ -114,8 +115,8 @@ pick = {
                     "value": "yellow"
                 },
                 {
-                    "name": "Purple",
-                    "value": "purple"
+                    "name": "Green",
+                    "value": "green"
                 },
                 {
                     "name": "Orange",
@@ -127,6 +128,58 @@ pick = {
             "name": "who",
             "description": "Choose color for whom",
             "type": 6,
+            "required": False
+        }
+    ]
+}
+
+end = {
+    "name": "end",
+    "description": "End the current game and create a video"
+}
+
+move = {
+    "name": "move",
+    "description": "Move to a certain position",
+    "options": [
+        {
+            "name": "pos",
+            "description": "Number of the station you want to move to",
+            "type": 4,
+            "required": True
+        },
+        {
+            "name": "color",
+            "description": "Which color do you want to move? (Use this to move bots)",
+            "type": 3,
+            "required": False,
+            "choices": [
+                {
+                    "name": "Red",
+                    "value": "red"
+                },
+                {
+                    "name": "Blue",
+                    "value": "blue"
+                },
+                {
+                    "name": "Yellow",
+                    "value": "yellow"
+                },
+                {
+                    "name": "Green",
+                    "value": "green"
+                },
+                {
+                    "name": "Orange",
+                    "value": "orange"
+                }
+            ]
+        },
+        {
+            "name": "boost",
+            "description": "Number of the second station, in case you want to move twice. (For Mr.X only)",
+            "type": 4,
             "required": False
         }
     ]
@@ -149,3 +202,4 @@ def get():
     global json
     r = requests.get(url, headers=headers)
     print(r.text)
+post(join)
