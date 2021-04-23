@@ -2,7 +2,7 @@ import requests
 from dotenv import load_dotenv
 import os
 
-url = "https://discord.com/api/v8/applications/831611998641848330/guilds/456109062833176598/commands"
+url = "https://discord.com/api/v8/applications/831611998641848330/commands"
 
 load_dotenv()
 AUTH_TOKEN = os.getenv('TOKEN')
@@ -189,6 +189,7 @@ headers = {
     "Authorization": f"Bot {AUTH_TOKEN}"
 }
 
+commands = [pick, end, move]
 def post(js):
     global url
     global headers
@@ -202,4 +203,6 @@ def get():
     global json
     r = requests.get(url, headers=headers)
     print(r.text)
-post(join)
+
+for e in commands:
+    post(e)

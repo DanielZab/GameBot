@@ -360,6 +360,7 @@ async def assign_pos():
     global sc_yr
     pos = [197, 132, 94, 103, 26, 141, 112, 91, 155, 34, 29, 50, 53, 198, 174, 13, 138, 117]
     end_msg = ""
+    embed = discord.Embed(title="Starting Positions")
     for i in sc_yr.moves.keys():
         start = random.choice(pos)
         pos.remove(start)
@@ -371,9 +372,10 @@ async def assign_pos():
         else:
             msg = sc_yr.get_player(i)
             logger.info(f"player type: {type(msg)}")
-            msg = i if type(msg) == type("") else msg.mention
-            end_msg += f"{msg} is starting at station number {start}\n\n"
-    await sc_yr.channel.send(end_msg) 
+            msg = i if type(msg) == type("") else str(msg)
+            embed.add_field(name=f"{msg}", value=f"{start}", inline=False)
+            #end_msg += f"{msg} starts at {start}\n\n"
+    await sc_yr.channel.send(embed=embed) 
     await play_round()
 
 async def play_round():
@@ -403,10 +405,14 @@ async def end_game():
     global sc_yr
     for i, e in enumerate(sc_yr.moves.values()):
         dic[player_images[i]] = e
-    make_video(MAP, dic)
-    await sc_yr.channel.send("The video has been created")
-    sc_yr = False
-    convert_avi_to_mp4("project.avi", "final")
+    try:
+        make_video(MAP, dic)
+        await sc_yr.channel.send("The video has been created")
+        convert_avi_to_mp4("project.avi", "final")
+    except:
+        pass
+    else:
+        sc_yr = False
 
 
 
@@ -846,7 +852,6 @@ if __name__ == '__main__':
 
 
     #check()
-    convert_avi_to_mp4("project.avi", "final")
     bot.run(AUTH_TOKEN)
 
     #clip = (VideoFileClip("project.avi"))

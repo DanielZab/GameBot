@@ -9,22 +9,22 @@
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
 !_TAG_PROGRAM_VERSION	5.9.0	/bfc40942/
-AUTH_TOKEN	../main.py	/^    AUTH_TOKEN = os.getenv('TOKEN')$/;"	kind:variable	line:831
+AUTH_TOKEN	../main.py	/^    AUTH_TOKEN = os.getenv('TOKEN')$/;"	kind:variable	line:837
 AUTH_TOKEN	../slashcommand.py	/^AUTH_TOKEN = os.getenv('TOKEN')$/;"	kind:variable	line:8
-BLACK	../main.py	/^    BLACK = Img('Assets\\\\White.png', 80, 80)$/;"	kind:variable	line:842
-BLUE	../main.py	/^    BLUE = Img('Assets\\\\Blue.png', 80, 80)$/;"	kind:variable	line:838
-GREEN	../main.py	/^    GREEN = Img('Assets\\\\Green.png', 80, 80)$/;"	kind:variable	line:840
-Img	../main.py	/^class Img:$/;"	kind:class	line:413
-MAP	../main.py	/^    MAP = Img('Assets\\\\Map.jpg')$/;"	kind:variable	line:836
-ORANGE	../main.py	/^    ORANGE = Img('Assets\\\\Orange.png', 80, 80)$/;"	kind:variable	line:841
-RED	../main.py	/^    RED = Img('Assets\\\\Red.png', 80, 80)$/;"	kind:variable	line:837
+BLACK	../main.py	/^    BLACK = Img('Assets\\\\White.png', 80, 80)$/;"	kind:variable	line:848
+BLUE	../main.py	/^    BLUE = Img('Assets\\\\Blue.png', 80, 80)$/;"	kind:variable	line:844
+GREEN	../main.py	/^    GREEN = Img('Assets\\\\Green.png', 80, 80)$/;"	kind:variable	line:846
+Img	../main.py	/^class Img:$/;"	kind:class	line:419
+MAP	../main.py	/^    MAP = Img('Assets\\\\Map.jpg')$/;"	kind:variable	line:842
+ORANGE	../main.py	/^    ORANGE = Img('Assets\\\\Orange.png', 80, 80)$/;"	kind:variable	line:847
+RED	../main.py	/^    RED = Img('Assets\\\\Red.png', 80, 80)$/;"	kind:variable	line:843
 Scotland_Yard	../main.py	/^class Scotland_Yard:$/;"	kind:class	line:24
-YELLOW	../main.py	/^    YELLOW = Img('Assets\\\\Yellow.png', 80, 80)$/;"	kind:variable	line:839
-__add__	../main.py	/^    def __add__(self, other):$/;"	kind:member	line:449
-__eq__	../main.py	/^    def __eq__(self, other):$/;"	kind:member	line:464
-__hash__	../main.py	/^    def __hash__(self):$/;"	kind:member	line:458
+YELLOW	../main.py	/^    YELLOW = Img('Assets\\\\Yellow.png', 80, 80)$/;"	kind:variable	line:845
+__add__	../main.py	/^    def __add__(self, other):$/;"	kind:member	line:455
+__eq__	../main.py	/^    def __eq__(self, other):$/;"	kind:member	line:470
+__hash__	../main.py	/^    def __hash__(self):$/;"	kind:member	line:464
 __init__	../main.py	/^    def __init__(self, channel):$/;"	kind:member	line:28
-__init__	../main.py	/^    def __init__(self, img, x_size=0, y_size=0, pos_x=0, pos_y=0):$/;"	kind:member	line:418
+__init__	../main.py	/^    def __init__(self, img, x_size=0, y_size=0, pos_x=0, pos_y=0):$/;"	kind:member	line:424
 __iter__	../main.py	/^    def __iter__(self):$/;"	kind:member	line:88
 __next__	../main.py	/^    def __next__(self):$/;"	kind:member	line:91
 _blep	../main.py	/^async def _blep(ctx: SlashContext, animal, only_smol: bool=False):$/;"	kind:function	line:111
@@ -36,44 +36,45 @@ _move	../main.py	/^async def _move(ctx: SlashContext, pos: int, color: str=False
 _pick	../main.py	/^async def _pick(ctx: SlashContext, color, who=False, *args):$/;"	kind:function	line:190
 _start	../main.py	/^async def _start(ctx: SlashContext, game: str, play_along: bool=False, *args):$/;"	kind:function	line:116
 assign	../main.py	/^    def assign(self, color, who):$/;"	kind:member	line:53
-assign_coordinates	../main.py	/^def assign_coordinates(li, img):$/;"	kind:function	line:759
+assign_coordinates	../main.py	/^def assign_coordinates(li, img):$/;"	kind:function	line:765
 assign_pos	../main.py	/^async def assign_pos():$/;"	kind:function	line:359
 bot	../main.py	/^bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())$/;"	kind:variable	line:18
-check	../main.py	/^def check():$/;"	kind:function	line:800
+check	../main.py	/^def check():$/;"	kind:function	line:806
 check_game	../main.py	/^async def check_game(ctx, game):$/;"	kind:function	line:303
 colors	../slashcommand.py	/^colors = {$/;"	kind:variable	line:90
+commands	../slashcommand.py	/^commands = [pick, end, move]$/;"	kind:variable	line:192
 conf_embed	../main.py	/^async def conf_embed(ctx, sc_yr):$/;"	kind:function	line:323
 confirm	../slashcommand.py	/^confirm = {$/;"	kind:variable	line:85
-convert	../main.py	/^    def convert(self):$/;"	kind:member	line:472
-convert_avi_to_mp4	../main.py	/^def convert_avi_to_mp4(avi_file_path, output_name):$/;"	kind:function	line:814
-destinations	../main.py	/^destinations = {$/;"	kind:variable	line:557
+convert	../main.py	/^    def convert(self):$/;"	kind:member	line:478
+convert_avi_to_mp4	../main.py	/^def convert_avi_to_mp4(avi_file_path, output_name):$/;"	kind:function	line:820
+destinations	../main.py	/^destinations = {$/;"	kind:variable	line:563
 end	../slashcommand.py	/^end = {$/;"	kind:variable	line:136
-end_game	../main.py	/^async def end_game():$/;"	kind:function	line:399
-generate	../main.py	/^    def generate():$/;"	kind:member	line:439
-generator	../main.py	/^    generator = 0$/;"	kind:variable	line:417
-get	../slashcommand.py	/^def get():$/;"	kind:function	line:199
+end_game	../main.py	/^async def end_game():$/;"	kind:function	line:401
+generate	../main.py	/^    def generate():$/;"	kind:member	line:445
+generator	../main.py	/^    generator = 0$/;"	kind:variable	line:423
+get	../slashcommand.py	/^def get():$/;"	kind:function	line:200
 get_player	../main.py	/^    def get_player(self, color):$/;"	kind:member	line:77
-handler	../main.py	/^    handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')$/;"	kind:variable	line:822
+handler	../main.py	/^    handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')$/;"	kind:variable	line:828
 headers	../slashcommand.py	/^headers = {$/;"	kind:variable	line:188
 join	../slashcommand.py	/^join = {$/;"	kind:variable	line:67
 json	../slashcommand.py	/^json = {$/;"	kind:variable	line:10
-logger	../main.py	/^    logger = logging.getLogger('discord')$/;"	kind:variable	line:820
+logger	../main.py	/^    logger = logging.getLogger('discord')$/;"	kind:variable	line:826
 main.py	../main.py	1;"	kind:file	line:1
 make_bots	../main.py	/^    def make_bots(self):$/;"	kind:member	line:65
-make_move	../main.py	/^def make_move(li, MAP):$/;"	kind:function	line:541
-make_video	../main.py	/^def make_video(MAP, dic):$/;"	kind:function	line:490
-move	../main.py	/^    def move(self, x, y):$/;"	kind:member	line:482
+make_move	../main.py	/^def make_move(li, MAP):$/;"	kind:function	line:547
+make_video	../main.py	/^def make_video(MAP, dic):$/;"	kind:function	line:496
+move	../main.py	/^    def move(self, x, y):$/;"	kind:member	line:488
 move	../slashcommand.py	/^move = {$/;"	kind:variable	line:141
 pick	../slashcommand.py	/^pick = {$/;"	kind:variable	line:95
-play_round	../main.py	/^async def play_round():$/;"	kind:function	line:379
-player_images	../main.py	/^    player_images=[RED, BLUE, YELLOW, GREEN, ORANGE, BLACK]$/;"	kind:variable	line:845
-post	../slashcommand.py	/^def post(js):$/;"	kind:function	line:192
+play_round	../main.py	/^async def play_round():$/;"	kind:function	line:381
+player_images	../main.py	/^    player_images=[RED, BLUE, YELLOW, GREEN, ORANGE, BLACK]$/;"	kind:variable	line:851
+post	../slashcommand.py	/^def post(js):$/;"	kind:function	line:193
 sc_yr	../main.py	/^sc_yr = False$/;"	kind:variable	line:22
 send_player_list	../main.py	/^async def send_player_list(ctx, players):$/;"	kind:function	line:312
 slash	../main.py	/^slash = SlashCommand(bot) # sync_commands=True$/;"	kind:variable	line:19
 slashcommand.py	../slashcommand.py	1;"	kind:file	line:1
-split	../main.py	/^def split(li):$/;"	kind:function	line:774
+split	../main.py	/^def split(li):$/;"	kind:function	line:780
 start	../slashcommand.py	/^start = {$/;"	kind:variable	line:42
 start_game	../main.py	/^async def start_game():$/;"	kind:function	line:349
 tes	../main.py	/^async def tes(ctx):$/;"	kind:function	line:300
-url	../slashcommand.py	/^url = "https:\/\/discord.com\/api\/v8\/applications\/831611998641848330\/guilds\/456109062833176/;"	kind:variable	line:5
+url	../slashcommand.py	/^url = "https:\/\/discord.com\/api\/v8\/applications\/831611998641848330\/commands"$/;"	kind:variable	line:5
