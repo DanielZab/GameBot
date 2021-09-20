@@ -406,9 +406,11 @@ async def end_game():
     for i, e in enumerate(sc_yr.moves.values()):
         dic[player_images[i]] = e
     try:
-        make_video(MAP, dic)
+        await sc_yr.channel.send("Creating video")
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, make_video, MAP, dic)
         await sc_yr.channel.send("The video has been created")
-        convert_avi_to_mp4("project.avi", "final")
+        await loop.run_in_executor(None, convert_avi_to_mp4, "project.avi", "final")
     except:
         pass
     else:

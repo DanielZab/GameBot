@@ -2,7 +2,7 @@ import requests
 from dotenv import load_dotenv
 import os
 
-url = "https://discord.com/api/v8/applications/831611998641848330/commands"
+url = "https://discord.com/api/v8/applications/831611998641848330/guilds/387214698757750784/commands/"
 
 load_dotenv()
 AUTH_TOKEN = os.getenv('TOKEN')
