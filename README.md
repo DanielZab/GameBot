@@ -2,8 +2,11 @@
 
 A discord bot which aims to visualize the game history and the player moves of the game scottland yard.
 
-An example result:
-https://user-images.githubusercontent.com/85441676/221712396-134070a2-c9fe-4459-b169-51a4038fd6be.mp4
+An example result: 
+
+https://user-images.githubusercontent.com/85441676/221712788-a779b29d-65f4-4c15-84c4-56c105f21ea0.mp4
+
+
 
 An example game process:
 ![Screenshot 2022-06-15 031745](https://user-images.githubusercontent.com/85441676/221712247-9eb42f58-a8e6-45a1-bf12-0330a8fe1bdc.png)
